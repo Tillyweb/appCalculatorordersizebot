@@ -17,7 +17,7 @@
             font-family: 'Mitr', sans-serif;
             background-color: #f5f5f7; /* Apple-like light gray background */
             color: #1d1d1f; /* Apple's primary text color */
-            overflow: hidden; /* Prevent scrollbars from the emojis */
+            overflow-x: hidden; /* Prevent horizontal scroll, allow vertical */
             position: relative;
         }
 
@@ -28,20 +28,20 @@
 
         /* Floating emoji animation */
         .emoji-bg {
-            position: absolute;
+            position: fixed; /* Fixed position to stay in background */
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
             overflow: hidden;
-            z-index: 1;
+            z-index: -1; /* Move behind all content */
         }
 
         .emoji {
             position: absolute;
             font-size: 2rem;
             animation: floatUp 25s linear infinite;
-            opacity: 0.4; /* Increased opacity for more vibrant colors */
+            opacity: 0.2; /* Made more subtle */
             user-select: none;
         }
 
@@ -75,6 +75,7 @@
             font-weight: 500;
             transition: all 0.3s ease;
             border: none;
+            white-space: nowrap;
         }
 
         .btn-primary {
@@ -114,17 +115,6 @@
             box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2);
         }
 
-        .main-title {
-            font-size: 2.5rem; /* 40px */
-            font-weight: 600;
-        }
-
-        .section-title {
-            font-size: 1.5rem; /* 24px */
-            font-weight: 600;
-            color: #1d1d1f;
-        }
-
         /* Rainbow text effect */
         .rainbow-text {
             background: linear-gradient(90deg, #ff00de, #ff7a00, #f0ff00, #00ff2e, #00b8ff, #9d00ff, #ff00de);
@@ -142,17 +132,17 @@
         }
     </style>
 </head>
-<body class="min-h-screen w-full flex items-center justify-center p-4">
+<body class="w-full">
     <!-- Background Emojis -->
     <div class="emoji-bg" id="emoji-container"></div>
 
     <!-- Main Content -->
-    <main id="app-container" class="main-container w-full max-w-7xl mx-auto">
+    <main id="app-container" class="main-container w-full max-w-7xl mx-auto py-8 px-4">
         <!-- Cover Page -->
         <div id="coverPage">
-            <h1 class="main-title text-center mb-2 rainbow-text">Calculator Ordersize BOT</h1>
+            <h1 class="text-3xl md:text-5xl font-bold text-center mb-2 rainbow-text">Calculator Ordersize BOT</h1>
             <p class="text-center text-gray-500 mb-6">ข้อมูล ณ วันที่: <span id="todayDate">กำลังโหลด...</span></p>
-             <div class="text-center mb-8 flex justify-center space-x-3">
+             <div class="text-center mb-8 flex flex-wrap justify-center gap-3">
                 <button id="updateBtn" class="btn btn-primary">
                     🔄 อัพเดทข้อมูล
                 </button>
@@ -161,10 +151,10 @@
                 </button>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Section 1: Dashboard Data -->
-                <div class="card p-6">
-                    <h2 class="section-title mb-5">Dashboard</h2>
+                <div class="card p-6 lg:p-8">
+                    <h2 class="text-2xl font-bold mb-5">Dashboard</h2>
                     <div id="dashboardData" class="space-y-4 text-lg">
                         <div class="flex justify-between items-center"><span class="text-gray-600">Port USDT:</span> <strong class="text-green-600 font-semibold" id="portUSDT">...</strong></div>
                         <div class="flex justify-between items-center"><span class="text-gray-600">Bath:</span> <strong class="text-green-600 font-semibold" id="bath">...</strong></div>
@@ -177,22 +167,22 @@
                     </div>
                 </div>
 
-                <!-- Section 2: Calculator (Moved to Center) -->
-                <div class="card p-6">
-                    <h2 class="section-title mb-4">Calculator Ordersize</h2>
+                <!-- Section 2: Calculator -->
+                <div class="card p-6 lg:p-8">
+                    <h2 class="text-2xl font-bold mb-4">Calculator Ordersize</h2>
                     <div class="flex justify-center space-x-2 my-4">
                         <button class="btn btn-secondary step-btn" data-step="1">STEP 1</button>
                         <button class="btn btn-secondary step-btn" data-step="2">STEP 2</button>
                         <button class="btn btn-secondary step-btn" data-step="3">STEP 3</button>
                     </div>
                     <div id="orderSizeResult" class="mt-5 space-y-4">
-                        <div class="p-4 bg-gray-100 rounded-lg">
+                        <div class="p-4 bg-gray-100 rounded-xl">
                             <h3 class="font-bold text-lg text-gray-800 mb-2">Tilly</h3>
                             <div id="tillyResult" class="space-y-2 text-lg">
                                 <p class="text-gray-500 text-base">กรุณาเลือก STEP</p>
                             </div>
                         </div>
-                         <div class="p-4 bg-gray-100 rounded-lg">
+                         <div class="p-4 bg-gray-100 rounded-xl">
                             <h3 class="font-bold text-lg text-gray-800 mb-2">Tipfy</h3>
                              <div id="tipfyResult" class="space-y-2 text-lg">
                                 <p class="text-gray-500 text-base">กรุณาเลือก STEP</p>
@@ -201,9 +191,9 @@
                     </div>
                 </div>
 
-                <!-- Section 3: Current Prices (Moved to Right) -->
-                <div class="card p-6">
-                    <h2 class="section-title mb-5">ราคาปัจจุบัน</h2>
+                <!-- Section 3: Current Prices -->
+                <div class="card p-6 lg:p-8">
+                    <h2 class="text-2xl font-bold mb-5">ราคาปัจจุบัน</h2>
                     <div id="priceData" class="space-y-4 text-lg">
                         <div class="flex justify-between items-center"><span class="text-gray-600">CELO/USDT:</span> <strong class="font-semibold text-blue-600" id="priceCELO">...</strong></div>
                         <div class="flex justify-between items-center"><span class="text-gray-600">ENJ/USDT:</span> <strong class="font-semibold text-blue-600" id="priceENJ">...</strong></div>
@@ -219,16 +209,16 @@
 
         <!-- Config Page -->
         <div id="configPage" class="hidden">
-            <h1 class="main-title text-center mb-4 rainbow-text">Config Size Order</h1>
+            <h1 class="text-3xl md:text-5xl font-bold text-center mb-4 rainbow-text">Config Size Order</h1>
             
-            <div class="flex justify-center space-x-3 mb-6">
+            <div class="flex flex-col sm:flex-row justify-center gap-3 mb-6">
                <button type="button" id="backToCoverBtn" class="btn btn-secondary">⬅️ กลับหน้าหลัก</button>
                <button type="submit" form="configForm" id="saveConfigBtn" class="btn btn-primary">💾 บันทึกการแก้ไข</button>
             </div>
 
-            <div class="card max-w-xl mx-auto p-8">
+            <div class="card w-full max-w-xl mx-auto p-6 md:p-8">
                 <form id="configForm">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
                         <div>
                             <label for="configPortUSDT" class="block mb-2 font-medium text-gray-700">Port USDT</label>
                             <input type="number" step="0.1" id="configPortUSDT" class="input-field w-full">
