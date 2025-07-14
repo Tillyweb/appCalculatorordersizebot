@@ -154,7 +154,10 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Section 1: Dashboard Data -->
                 <div class="card p-6 lg:p-8">
-                    <h2 class="text-2xl font-bold mb-5">Dashboard</h2>
+                    <div id="currentStepDisplay" class="mb-5 text-center p-3 bg-blue-100 rounded-xl">
+                        <p class="text-gray-500">กำลังโหลด STEP...</p>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-5 border-t pt-5">Dashboard</h2>
                     <div id="dashboardData" class="space-y-4 text-lg">
                         <div class="flex justify-between items-center"><span class="text-gray-600">Port USDT:</span> <strong class="text-green-600 font-semibold" id="portUSDT">...</strong></div>
                         <div class="flex justify-between items-center"><span class="text-gray-600">Bath:</span> <strong class="text-green-600 font-semibold" id="bath">...</strong></div>
@@ -336,11 +339,23 @@
         function updateDisplay(data) {
             if (!data) return;
 
+            // Current STEP Display
+            const currentStep = data.dashboard.currentStep;
+            const stepDisplayDiv = document.getElementById('currentStepDisplay');
+            if (currentStep && stepDisplayDiv) {
+                stepDisplayDiv.innerHTML = `
+                    <p class="text-gray-600 text-lg">วันนี้ใช้</p>
+                    <p class="font-bold text-3xl text-red-500 animate-pulse">STEP ${currentStep}</p>
+                `;
+            } else if (stepDisplayDiv) {
+                stepDisplayDiv.innerHTML = '<p class="text-gray-500">ไม่พบข้อมูล STEP</p>';
+            }
+
             // Dashboard
             document.getElementById('portUSDT').textContent = formatNumber(data.dashboard.portUSDT);
             document.getElementById('bath').textContent = formatNumber(data.dashboard.bath);
             document.getElementById('xLeverage').textContent = formatNumber(data.dashboard.xLeverage);
-            document.getElementById('percentPerTrade').textContent = formatPercent(data.dashboard.percentPerTrade); // Changed to 2 decimal places
+            document.getElementById('percentPerTrade').textContent = formatPercent(data.dashboard.percentPerTrade);
             document.getElementById('celoX').textContent = formatNumber(data.dashboard.celoX);
             document.getElementById('enjX').textContent = formatNumber(data.dashboard.enjX);
             document.getElementById('wldX').textContent = formatNumber(data.dashboard.wldX);
@@ -375,8 +390,6 @@
             }
             
             const stepIndex = parseInt(step, 10) - 1;
-            const dayOfMonth = new Date().getDate();
-            const isSpecialPeriod = dayOfMonth >= 12 && dayOfMonth <= 18;
 
             const tillyResultDiv = document.getElementById('tillyResult');
             const tipfyResultDiv = document.getElementById('tipfyResult');
@@ -384,27 +397,26 @@
             tipfyResultDiv.innerHTML = '';
 
             let tillyCalculations = {};
+            // This function will now ALWAYS use the 'regular' dataset
             const displayResults = (coins, dataSet) => {
                 coins.forEach(coin => {
-                    const rawValue = dataSet[coin] ? dataSet[coin][stepIndex] : 'N/A';
-                    const numericValue = parseFloat(rawValue);
-                    tillyCalculations[coin] = numericValue;
-                    const displayValue = formatNumber(numericValue);
-                    // Changed text color to dark blue (text-blue-800)
-                    tillyResultDiv.innerHTML += `<p class="flex justify-between"><span>${coin}:</span> <strong class="text-blue-800">${displayValue}</strong></p>`;
+                    // Ensure the dataset and coin data exist before trying to access them
+                    if (dataSet && dataSet[coin]) {
+                        const rawValue = dataSet[coin][stepIndex];
+                        const numericValue = parseFloat(rawValue);
+                        tillyCalculations[coin] = numericValue;
+                        const displayValue = formatNumber(numericValue);
+                        tillyResultDiv.innerHTML += `<p class="flex justify-between"><span>${coin}:</span> <strong class="text-blue-800">${displayValue}</strong></p>`;
+                    }
                 });
             };
 
-            if (isSpecialPeriod) {
-                displayResults(['CELO', 'ENJ'], sheetData.calculations.special);
-            } else {
-                displayResults(['CELO', 'ENJ', 'WLD', 'RUNE'], sheetData.calculations.regular);
-            }
+            // Call displayResults with the regular dataset, ignoring the special period.
+            displayResults(['CELO', 'ENJ', 'WLD', 'RUNE'], sheetData.calculations.regular);
 
             for (const coin in tillyCalculations) {
                 const tillyValue = tillyCalculations[coin];
                 const tipfyValue = !isNaN(tillyValue) ? (tillyValue * 0.1).toFixed(1) : 'N/A';
-                // Changed text color to dark blue (text-blue-800)
                 tipfyResultDiv.innerHTML += `<p class="flex justify-between"><span>${coin}:</span> <strong class="text-blue-800">${tipfyValue}</strong></p>`;
             }
         }
